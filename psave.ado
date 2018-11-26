@@ -1,6 +1,6 @@
 program define psave , rclass
 version 14
-	syntax , file(string asis) [preserve eopts(string) debug com]
+	syntax , file(string asis) [preserve eopts(string) debug com old(integer)]
 	
 	// Drops CSV file extension if any is present
 	local newfile = subinstr(`file', ".csv", "", .)
@@ -8,6 +8,7 @@ version 14
 	
 	local filecsv = "`newfile'" + ".csv"
 	local filedta = "`newfile'" + ".dta"
+	local filedta_old = "`newfile'" + "_v`old'" + ".dta"
 	
 	// guarantees that the rows in the CSV are always ordered the same---
 	set seed 13237 // from random.org
@@ -25,6 +26,10 @@ version 14
 	}
 	
 	save "`filedta'" , replace
+	
+	if "`old'" != ""{
+		saveold "`filedta_old'" , replace version(`old')
+	}
 	
 	if "`debug'" == ""{
 		export delimited using "`filecsv'", replace `eopts'
